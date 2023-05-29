@@ -23,29 +23,15 @@
                 <li class="nav-item">
                     <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
                 </li>
-                <li class="nav-item active">
+                <li class="nav-item">
                     <a class="nav-link" href="/write">Write</a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item active">
                     <a class="nav-link" href="/list">List</a>
                 </li>
             </ul>
         </div>
     </nav>
-    <div class="container mt-5">
-        <form action="/add" method="POST">
-            <div class="form-group">
-                <label>할일</label>
-                <input type="text" class="form-control" name="title">
-            </div>
-            <div class="form-group">
-                <label>Due data</label>
-                <input type="text" class="form-control" name="date">
-            </div>
-            <button type="submit" class="btn btn-danger">Submit</button>
-        </form>
-    </div>
-
 
 
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"

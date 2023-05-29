@@ -2,15 +2,16 @@ const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
 const mykey = require('./mykey.js');
+const { list } = require('mongodb/lib/gridfs/grid_store.js');
 app.use(bodyParser.urlencoded({ extended: true }));
 const MongoClient = require('mongodb').MongoClient;
+app.set('view engine', 'ejs');
 
 let db;
 MongoClient.connect(`mongodb+srv://admin:${mykey.dbkey}@cluster0.oawj1is.mongodb.net/?retryWrites=true&w=majority`, function (error, client) {
     if (error) return console.log(error);
 
     db = client.db('todoapp');
-
 
     app.listen(8080, function () {
         console.log('listening on 8080')
@@ -35,4 +36,8 @@ app.post('/add', function (req, res) {
     db.collection('post').insertOne({ title: title, date: date }, function (error, result) {
         console.log('저장완료');
     });
+})
+
+app.get('/list', function (req, res) {
+    res.render('list.ejs');
 })
