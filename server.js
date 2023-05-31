@@ -31,11 +31,15 @@ app.post('/add', function (req, res) {
     res.send('전송완료');
     const title = req.body.title;
     const date = req.body.date;
-    console.log(title);
-    console.log(date);
-    db.collection('post').insertOne({ title: title, date: date }, function (error, result) {
-        console.log('저장완료');
+    db.collection('counter').findOne({ name: '게시물 갯수' }, function (error, result) {
+        console.log(result.totalPost);
+        let total = result.totalPost;
+        db.collection('post').insertOne({ _id: total + 1, title: title, date: date }, function (error, result) {
+            console.log('저장완료');
+        });
+
     });
+
 })
 
 app.get('/list', function (req, res) {
