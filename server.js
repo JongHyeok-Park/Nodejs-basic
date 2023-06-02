@@ -28,23 +28,27 @@ app.get('/write', function (req, res) {
 
 
 app.post('/add', function (req, res) {
-    res.send('전송완료');
+    res.sendFile(__dirname + '/pages/writeDone.html');
     const title = req.body.title;
     const date = req.body.date;
     db.collection('counter').findOne({ name: '게시물 갯수' }, function (error, result) {
         console.log(result.totalPost);
         let total = result.totalPost;
-        db.collection('post').insertOne({ _id: total + 1, title: title, date: date }, function (error, result) {
+        db.collection('post').insertOne({ _id: total, title: title, date: date }, function (error, result) {
             console.log('저장완료');
+            db.collection('counter').updateOne({ name: '게시물 갯수' }, { $inc: { totalPost: 1 } }, function (error, result) {
+                if (error) return console.log(error);
+            });
         });
-
     });
-
 })
 
 app.get('/list', function (req, res) {
     db.collection('post').find().toArray(function (error, result) {
-        console.log(result);
         res.render('list.ejs', { posts: result });
     });
+})
+
+app.delete('/delete', function (req, res) {
+    console.log(req.body);
 })
