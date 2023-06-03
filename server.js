@@ -51,4 +51,8 @@ app.get('/list', function (req, res) {
 
 app.delete('/delete', function (req, res) {
     console.log(req.body);
+    req.body._id = parseInt(req.body._id);
+    db.collection('post').deleteOne(req.body, function (error, result) {
+        console.log('Success Delete');
+    })
 })
