@@ -6,6 +6,7 @@ const { list } = require('mongodb/lib/gridfs/grid_store.js');
 app.use(bodyParser.urlencoded({ extended: true }));
 const MongoClient = require('mongodb').MongoClient;
 app.set('view engine', 'ejs');
+app.use('/public', express.static('public'));
 
 let db;
 MongoClient.connect(`mongodb+srv://admin:${mykey.dbkey}@cluster0.oawj1is.mongodb.net/?retryWrites=true&w=majority`, function (error, client) {
@@ -19,16 +20,16 @@ MongoClient.connect(`mongodb+srv://admin:${mykey.dbkey}@cluster0.oawj1is.mongodb
 })
 
 app.get('/', function (req, res) {
-    res.sendFile(__dirname + '/pages/index.html');
+    res.render('index.ejs');
 });
 
 app.get('/write', function (req, res) {
-    res.sendFile(__dirname + '/pages/write.html');
+    res.render('write.ejs');
 });
 
 
 app.post('/add', function (req, res) {
-    res.sendFile(__dirname + '/pages/writeDone.html');
+    res.render('writeDone.ejs');
     const title = req.body.title;
     const date = req.body.date;
     db.collection('counter').findOne({ name: '게시물 갯수' }, function (error, result) {
@@ -54,5 +55,14 @@ app.delete('/delete', function (req, res) {
     req.body._id = parseInt(req.body._id);
     db.collection('post').deleteOne(req.body, function (error, result) {
         console.log('Success Delete');
+        res.status(200).send({ message: 'Success' });
     })
+})
+
+app.get('/detail/:id', function (req, res) {
+    db.collection('post').findOne({ _id: parseInt(req.params.id) }, function (error, result) {
+        console.log(result);
+        res.render('detail.ejs', { data: result });
+    })
+
 })
