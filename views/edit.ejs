@@ -13,29 +13,27 @@
 
 <body>
     <%- include('nav.html') %>
-
-        <div class="container mt-4">
-            <h4>상세페이지</h4>
-
-            <div class="card" style="width: 100%;">
-                <div class="card-body">
-                    <h5 class="card-title">
-                        <%= data.title %>
-                    </h5>
-                    <h6 class="card-subtitle mb-2 text-body-secondary">
-                        <%= data.date %>
-                    </h6>
-                    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the
-                        card's
-                        content.</p>
-                    <a href="/edit/<%= data._id %>" class="card-link">수정하기</a>
+        <div class="container mt-5">
+            <p>글 번호 : <%= post._id %>
+            </p>
+            <form action="/add?_method=PUT" method="POST">
+                <div class="form-group">
+                    <label>할일</label>
+                    <input value="<%= post.title %>" type="text" class="form-control" name="title">
                 </div>
-            </div>
+                <div class="form-group">
+                    <label>Due data</label>
+                    <input value="<%= post.date %>" type="text" class="form-control" name="date">
+                </div>
+                <button type="submit" class="btn btn-danger">수정하기</button>
+            </form>
         </div>
 
 
-        <script src="https://code.jquery.com/jquery-3.7.0.min.js"
-            integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+
+        <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"
+            integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+            crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
             integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
             crossorigin="anonymous"></script>
