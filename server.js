@@ -75,3 +75,10 @@ app.get('/edit/:id', function (req, res) {
     })
 
 })
+
+app.put('/edit', function (req, res) {
+    db.collection('post').updateOne({ _id: parseInt(req.body.id) }, { $set: { title: req.body.title, date: req.body.date } }, function (error, result) {
+        console.log('수정완료');
+        res.redirect('/list');
+    })
+})
