@@ -97,6 +97,19 @@ app.post('/login', passport.authenticate('local', {
     res.redirect('/');
 });
 
+app.get('/mypage', loginCheck, function (req, res) {
+    console.log(req.user);
+    res.render('mypage.ejs', { user: req.user });
+});
+
+function loginCheck(req, res, next) {
+    if (req.user) {
+        next();
+    } else {
+        res.redirect('/login');
+    }
+}
+
 passport.use(new LocalStrategy({
     usernameField: 'id',
     passwordField: 'pw',
@@ -120,5 +133,7 @@ passport.serializeUser(function (user, done) {
 });
 
 passport.deserializeUser(function (id, done) {
-    done(null, {});
+    db.collection('login').findOne({ id: id }, function (error, result) {
+        done(null, result);
+    })
 });
