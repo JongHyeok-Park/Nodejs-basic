@@ -9,6 +9,7 @@ const methodOverride = require('method-override');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const session = require('express-session');
+require('dotenv').config();   // 환경변수 라이브러리
 app.use(methodOverride('_method'));
 app.set('view engine', 'ejs');
 app.use('/public', express.static('public'));
@@ -17,13 +18,13 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 let db;
-MongoClient.connect(`mongodb+srv://admin:${mykey.dbkey}@cluster0.oawj1is.mongodb.net/?retryWrites=true&w=majority`, function (error, client) {
+MongoClient.connect(process.env.DB_URL, function (error, client) {
     if (error) return console.log(error);
 
     db = client.db('todoapp');
 
-    app.listen(8080, function () {
-        console.log('listening on 8080')
+    app.listen(process.env.PORT, function () {
+        console.log('listening on', process.env.PORT);
     })
 });
 
@@ -57,6 +58,36 @@ app.get('/list', function (req, res) {
         res.render('list.ejs', { posts: result });
     });
 });
+
+app.get('/search', (req, res) => {
+    // db.collection('post').find({ $text: { $search: req.query.value } }).toArray((error, result) => {
+    //     res.render('list.ejs', { posts: result })  // text index 한글에 불친화적
+    // })
+    const searchOption = [
+        {
+            $search: {
+                index: 'titleSearch',
+                text: {
+                    query: req.query.value,
+                    path: 'title'  // title, date 둘 다 찾으려면 ['title', 'date]
+                }
+            }
+        },
+        { // 정렬 옵션
+            $sort: { _id: 1 } // 오름차순 1, 내림차순 -1
+        },
+        { // 가져는는 개수 제한
+            $limit: 10
+        },
+        // { // search score (많이 검색되는지)
+        //     $project: { title: 1, _id: 0, score: { $meta: "searchScore" } } // _id에 0 넣으면 _id는 안 가져옴
+        // }
+    ]
+    db.collection('post').aggregate(searchOption).toArray((error, result) => {
+        console.log(result);
+        res.render('list.ejs', { posts: result })
+    })
+})
 
 app.delete('/delete', function (req, res) {
     console.log(req.body);
