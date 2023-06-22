@@ -41,10 +41,11 @@ app.post('/add', function (req, res) {
     res.render('writeDone.ejs');
     const title = req.body.title;
     const date = req.body.date;
+    const user = req.user._id;
     db.collection('counter').findOne({ name: '게시물 갯수' }, function (error, result) {
         console.log(result.totalPost);
         let total = result.totalPost;
-        db.collection('post').insertOne({ _id: total, title: title, date: date }, function (error, result) {
+        db.collection('post').insertOne({ _id: total, title: title, date: date, user: user }, function (error, result) {
             console.log('저장완료');
             db.collection('counter').updateOne({ name: '게시물 갯수' }, { $inc: { totalPost: 1 } }, function (error, result) {
                 if (error) return console.log(error);
@@ -92,9 +93,16 @@ app.get('/search', (req, res) => {
 app.delete('/delete', function (req, res) {
     console.log(req.body);
     req.body._id = parseInt(req.body._id);
-    db.collection('post').deleteOne(req.body, function (error, result) {
-        console.log('Success Delete');
-        res.status(200).send({ message: 'Success' });
+
+    const target = { _id: req.body._id, user: req.user._id }
+    db.collection('post').deleteOne(target, function (error, result) {
+        if (error) {
+            res.status(401).send({ message: 'No Permission ' });
+        }
+        else {
+            console.log('Success Delete');
+            res.status(200).send({ message: 'Success' });
+        }
     });
 });
 
@@ -106,7 +114,8 @@ app.get('/detail/:id', function (req, res) {
 });
 
 app.get('/edit/:id', function (req, res) {
-    db.collection('post').findOne({ _id: parseInt(req.params.id) }, function (error, result) {
+    const target = { _id: parseInt(req.params.id), user: req.user._id };
+    db.collection('post').findOne(target, function (error, result) {
         res.render('edit.ejs', { post: result });
     });
 });
@@ -168,3 +177,9 @@ passport.deserializeUser(function (id, done) {
         done(null, result);
     })
 });
+
+app.post('/register', function (req, res) {
+    db.collection('login').insertOne({ id: req.body.id, pw: req.body.pw }, function (error, result) {
+        res.redirect('/');
+    })
+})
