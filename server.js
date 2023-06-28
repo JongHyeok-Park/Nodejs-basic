@@ -1,7 +1,6 @@
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
-const mykey = require('./mykey.js');
 const { list } = require('mongodb/lib/gridfs/grid_store.js');
 app.use(bodyParser.urlencoded({ extended: true }));
 const MongoClient = require('mongodb').MongoClient;
@@ -9,6 +8,7 @@ const methodOverride = require('method-override');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const session = require('express-session');
+const multer = require('multer');
 require('dotenv').config();   // 환경변수 라이브러리
 app.use(methodOverride('_method'));
 app.set('view engine', 'ejs');
@@ -27,6 +27,17 @@ MongoClient.connect(process.env.DB_URL, function (error, client) {
         console.log('listening on', process.env.PORT);
     })
 });
+
+let storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, './public/image')
+    },
+    filename: function (req, file, cb) {
+        cb(null, file.originalname)
+    }
+});
+
+let upload = multer({ storage: storage });
 
 app.get('/', function (req, res) {
     res.render('index.ejs');
@@ -88,6 +99,18 @@ app.get('/search', (req, res) => {
         console.log(result);
         res.render('list.ejs', { posts: result })
     })
+});
+
+app.get('/upload', function (req, res) {
+    res.render('upload.ejs');
+})
+
+app.post('/upload', upload.single('profile'), function (req, res) {
+    res.send('업로드 완료');
+})
+
+app.get('/image/:fname', function (req, res) {
+    res.sendFile(__dirname + '/public/image/' + req.params.fname)
 })
 
 app.delete('/delete', function (req, res) {
