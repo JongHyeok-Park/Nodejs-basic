@@ -9,6 +9,7 @@ const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const session = require('express-session');
 const multer = require('multer');
+const { ObjectId } = require('mongodb');
 require('dotenv').config();   // 환경변수 라이브러리
 app.use(methodOverride('_method'));
 app.set('view engine', 'ejs');
@@ -164,6 +165,25 @@ app.get('/mypage', loginCheck, function (req, res) {
     console.log(req.user);
     res.render('mypage.ejs', { user: req.user });
 });
+
+app.post('/chatroom', loginCheck, function (req, res) {
+    db.collection('chatroom').insertOne({
+        title: "채팅방1",
+        member: [ObjectId(req.body._id), req.user._id],
+        date: new Date()
+    }).then(function (result) {
+        res.send('생성 완료');
+    }).catch(function (result) {
+        res.send('생성 실패');
+    })
+})
+
+app.get('/chat', loginCheck, function (req, res) {
+    db.collection('chatroom').find({ member: req.user._id }).toArray().then((result) => {
+        console.log(result);
+        res.render('chat.ejs', { data: result })
+    })
+})
 
 function loginCheck(req, res, next) {
     if (req.user) {

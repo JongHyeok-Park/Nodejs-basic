@@ -29,6 +29,7 @@
                         <p>할일 마감날짜 : <%= posts[i].date %>
                         </p>
                         <button class="btn btn-danger delete" data-id="<%= posts[i]._id %>">삭제</button>
+                        <button class="btn btn-danger chat" data-id="<%= posts[i].user %>">채팅</button>
                     </li>
                     <% } %>
             </ul>
@@ -53,6 +54,20 @@
                     console.log(err + '실패');
                 })
             })
+
+            $('.chat').click(function (e) {
+                const num = e.target.dataset.id;
+                $.ajax({
+                    method: 'POST',
+                    url: '/chatroom',
+                    data: { _id: num }
+                }).done((res) => {
+                    console.log(res);
+                }).fail((err) => {
+                    console.log(err);
+                })
+            })
+
 
             $('#search').click(function () {
                 const input_value = $('#search-input').val()
