@@ -185,6 +185,23 @@ app.get('/chat', loginCheck, function (req, res) {
     })
 })
 
+app.post('/message', loginCheck, function (req, res) {
+    let data = {
+        parent: ObjectId(req.body.parent),
+        content: req.body.content,
+        userId: req.user._id,
+        date: new Date()
+    }
+
+    db.collection('message').insertOne(data)
+        .then((result) => {
+            console.log('저장 완료')
+            res.send('저장 성공')
+        }).catch((error) => {
+            console.log('저장 실패')
+        })
+})
+
 function loginCheck(req, res, next) {
     if (req.user) {
         next();
