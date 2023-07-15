@@ -202,6 +202,21 @@ app.post('/message', loginCheck, function (req, res) {
         })
 })
 
+app.get('/message/:id', loginCheck, function (req, res) {
+    res.writeHead(200, {
+        "Connection": "keep-alive",
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache"
+    });
+
+    db.collection('message').find({ parent: ObjectId(req.params.id) }).toArray().then((result) => {
+        res.write('event: test\n');
+        res.write(`data: ${JSON.stringify(result)}\n\n`);
+    })
+
+
+})
+
 function loginCheck(req, res, next) {
     if (req.user) {
         next();

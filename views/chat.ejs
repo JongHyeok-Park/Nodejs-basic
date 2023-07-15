@@ -46,7 +46,6 @@
                     </div>
                 </div>
             </div>
-
         </div>
 
         <script src="https://code.jquery.com/jquery-3.7.0.min.js"
@@ -60,9 +59,21 @@
 
         <script>
             let currentId = document.querySelectorAll('.list-group-item')[0].dataset.id;
+            let eventSource;
 
             $('.list-group-item').click(function () {
                 currentId = this.dataset.id;
+
+                eventSource = new EventSource('/message/' + currentId)
+                eventSource.addEventListener('test', function (e) {
+                    console.log(JSON.parse(e.data));
+
+                    // list 추가 내용 넣어야 함
+                    const templet = `
+                    <li><span class="chat-box">${JSON.parse(e.data)[0].content}</span></li>
+                    `;
+                    $('.chat-content').append(templet);
+                })
             })
 
             $('#send').click(function () {
