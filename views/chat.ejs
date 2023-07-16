@@ -60,19 +60,41 @@
         <script>
             let currentId = document.querySelectorAll('.list-group-item')[0].dataset.id;
             let eventSource;
+            let nowUser;
+            $.get('/myid')
+                .then((res) => {
+                    nowUser = res;
+                    // console.log(nowUser);
+                });
 
             $('.list-group-item').click(function () {
                 currentId = this.dataset.id;
+                $('.chat-content').html('');
+
+                if (eventSource != undefined) {
+                    eventSource.close();
+                }
 
                 eventSource = new EventSource('/message/' + currentId)
                 eventSource.addEventListener('test', function (e) {
-                    console.log(JSON.parse(e.data));
+                    // console.log(JSON.parse(e.data));
+
+                    const getData = JSON.parse(e.data);
 
                     // list 추가 내용 넣어야 함
-                    const templet = `
-                    <li><span class="chat-box">${JSON.parse(e.data)[0].content}</span></li>
-                    `;
-                    $('.chat-content').append(templet);
+                    getData.forEach(element => {
+                        let templet;
+                        if (element.userId == nowUser) {
+                            templet = `
+                            <li><span class="chat-box mine">${element.content}</span></li>
+                            `;
+                        } else {
+                            templet = `
+                            <li><span class="chat-box">${element.content}</span></li>
+                            `;
+                        }
+                        $('.chat-content').append(templet);
+                    });
                 })
             })
 
@@ -86,6 +108,8 @@
                     .then(() => {
                         console.log('전송 완료');
                     })
+
+                document.querySelector('#chat-input').value = null;
             })
         </script>
 </body>

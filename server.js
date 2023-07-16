@@ -180,8 +180,7 @@ app.post('/chatroom', loginCheck, function (req, res) {
 
 app.get('/chat', loginCheck, function (req, res) {
     db.collection('chatroom').find({ member: req.user._id }).toArray().then((result) => {
-        console.log(result);
-        res.render('chat.ejs', { data: result })
+        res.render('chat.ejs', { data: result });
     })
 })
 
@@ -209,12 +208,27 @@ app.get('/message/:id', loginCheck, function (req, res) {
         "Cache-Control": "no-cache"
     });
 
-    db.collection('message').find({ parent: ObjectId(req.params.id) }).toArray().then((result) => {
+    const target = ObjectId(req.params.id);
+
+    db.collection('message').find({ parent: target }).toArray().then((result) => {
         res.write('event: test\n');
         res.write(`data: ${JSON.stringify(result)}\n\n`);
     })
 
+    const pipeline = [
+        { $match: { 'fullDocument.parent': target } }
+    ];
+    const collection = db.collection('message');
+    const changeStream = collection.watch(pipeline);
+    changeStream.on('change', (result) => {
+        console.log(result.fullDocument);
+        res.write('event: test\n');
+        res.write('data: ' + JSON.stringify([result.fullDocument]) + '\n\n');
+    });
+})
 
+app.get('/myid', loginCheck, function (req, res) {
+    res.send(req.user._id);
 })
 
 function loginCheck(req, res, next) {
