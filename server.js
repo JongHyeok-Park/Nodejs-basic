@@ -10,6 +10,12 @@ const LocalStrategy = require('passport-local').Strategy;
 const session = require('express-session');
 const multer = require('multer');
 const { ObjectId } = require('mongodb');
+
+// socket.io //
+const http = require('http').createServer(app);
+const { Server } = require('socket.io');
+const io = new Server(http);
+
 require('dotenv').config();   // 환경변수 라이브러리
 app.use(methodOverride('_method'));
 app.set('view engine', 'ejs');
@@ -24,7 +30,7 @@ MongoClient.connect(process.env.DB_URL, function (error, client) {
 
     db = client.db('todoapp');
 
-    app.listen(process.env.PORT, function () {
+    http.listen(process.env.PORT, function () {
         console.log('listening on', process.env.PORT);
     })
 });
@@ -43,6 +49,18 @@ let upload = multer({ storage: storage });
 app.get('/', function (req, res) {
     res.render('index.ejs');
 });
+
+app.get('/socket', function (req, res) {
+    res.render('socket.ejs');
+})
+
+io.on('connection', function (socket) {
+    console.log('접속됨');
+
+    socket.on('user-send', function (data) {
+        console.log(data);
+    })
+})
 
 app.get('/write', function (req, res) {
     res.render('write.ejs');
