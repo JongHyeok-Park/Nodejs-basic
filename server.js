@@ -59,7 +59,17 @@ io.on('connection', function (socket) {
 
     socket.on('user-send', function (data) {
         console.log(data);
+        io.emit('broadcast', data);
     })
+
+    socket.on('joinroom', function (data) {
+        socket.join('room1');
+    })
+
+    socket.on('room1-send', function (data) {
+        io.to('room1').emit('broadcast', data);
+    })
+
 })
 
 app.get('/write', function (req, res) {
